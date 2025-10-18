@@ -43,12 +43,22 @@ class GreetingService extends RpcTarget implements BackendApi {
 
 const service = new GreetingService();
 
-function applyCors(response: Response, originHeader: string | null): Response {
-  const allowOrigin = originHeader ?? '*';
+type CorsOptions = {
+  origin: string | null;
+  requestHeaders?: string | null;
+};
+
+function applyCors(response: Response, { origin, requestHeaders }: CorsOptions): Response {
+  const allowOrigin = origin ?? '*';
+  const allowHeaders = requestHeaders?.length ? requestHeaders : 'Content-Type';
+
   response.headers.set('Access-Control-Allow-Origin', allowOrigin);
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
   response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', allowHeaders);
   response.headers.append('Vary', 'Origin');
+  if (requestHeaders) {
+    response.headers.append('Vary', 'Access-Control-Request-Headers');
+  }
   return response;
 }
 
@@ -56,14 +66,18 @@ export default {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin');
+    const requestedHeaders = request.headers.get('Access-Control-Request-Headers');
 
     if (url.pathname === '/api') {
       if (request.method === 'OPTIONS') {
-        return applyCors(new Response(null, { status: 204 }), origin);
+        return applyCors(new Response(null, { status: 204 }), {
+          origin,
+          requestHeaders: requestedHeaders,
+        });
       }
 
       const response = await newWorkersRpcResponse(request, service);
-      return applyCors(response, origin);
+      return applyCors(response, { origin, requestHeaders: requestedHeaders });
     }
 
     if (url.pathname === '/health') {

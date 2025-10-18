@@ -21,11 +21,13 @@ Start the Cloudflare Worker in one terminal:
 pnpm backend:dev
 ```
 
-Then start the Svelte dev server, pointing it at the Worker URL that Wrangler exposes (defaults to `http://127.0.0.1:8787`):
+Then start the Svelte dev server. By default the frontend will talk to `http://127.0.0.1:8787`, matching Wrangler's default.
 
 ```bash
-PUBLIC_API_BASE=http://127.0.0.1:8787 pnpm dev
+pnpm dev
 ```
+
+Override the target by exporting `PUBLIC_API_BASE` (or `PUBLIC_API_BASE_DEV` while developing) if your Worker runs elsewhere.
 
 The UI will be available at [http://localhost:3000](http://localhost:3000) and all RPC calls are routed to the Worker via Cap'n Web.
 
@@ -52,6 +54,7 @@ The deployed Worker exposes the RPC endpoint at `/api`, which the frontend targe
 ## Configuration
 
 - `PUBLIC_API_BASE`: optional, base URL for the Cap'n Web endpoint. Leave unset to use same-origin `/api` paths (e.g., when the Worker is fronted by the same host); set it when developing locally or when the Worker runs on a different domain.
+- `PUBLIC_API_BASE_DEV`: optional, development-only base URL. Defaults to `http://127.0.0.1:8787` when `PUBLIC_API_BASE` is omitted so the UI can reach a locally running Worker on the Wrangler dev port.
 
 ## Useful references
 

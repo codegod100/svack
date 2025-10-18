@@ -1,0 +1,40 @@
+diff -urN a/dist/index.js b/dist/index.js
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -5,13 +5,17 @@
+ if (!Symbol.asyncDispose) {
+   Symbol.asyncDispose = Symbol.for("asyncDispose");
+ }
+-var workersModuleName = navigator.userAgent === "Cloudflare-Workers" ? "cloudflare:workers" : null;
+ var workersModule;
+-if (workersModuleName) {
++if (typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers") {
+   workersModule = await import(
+     /* @vite-ignore */
+-    workersModuleName
++    /* webpackIgnore: true */
++    "cloudflare:workers"
+   );
++} else {
++  workersModule = null;
+ }
+ var RpcTarget = workersModule ? workersModule.RpcTarget : class {
+ };
+@@ -52,11 +56,15 @@
+     case RpcPromise.prototype:
+       return "rpc-promise";
+     // TODO: Promise<T> or thenable
+     default:
+       if (workersModule) {
+-        if (prototype == workersModule.RpcStub.prototype || value instanceof workersModule.ServiceStub) {
++        const workerRpcStub = workersModule.RpcStub;
++        const workerServiceStub = workersModule.ServiceStub;
++        const workerRpcPromise = workersModule.RpcPromise;
++        const workerRpcProperty = workersModule.RpcProperty;
++        if (workerRpcStub && prototype == workerRpcStub.prototype || workerServiceStub && value instanceof workerServiceStub) {
+           return "rpc-target";
+-        } else if (prototype == workersModule.RpcPromise.prototype || prototype == workersModule.RpcProperty.prototype) {
++        } else if (workerRpcPromise && prototype == workerRpcPromise.prototype || workerRpcProperty && prototype == workerRpcProperty.prototype) {
+           return "rpc-thenable";
+         }
+       }

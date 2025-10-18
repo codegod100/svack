@@ -3,6 +3,10 @@
 
 interface ImportMetaEnv {
   readonly PUBLIC_API_BASE?: string;
+  readonly PUBLIC_API_BASE_DEV?: string;
+  readonly DEV: boolean;
+  readonly PROD: boolean;
+  readonly MODE: string;
 }
 
 interface ImportMeta {

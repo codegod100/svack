@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { GreetingRecord, ServerInfo } from './lib/rpc';
-  import { withBackendSession } from './lib/apiClient';
+  import { API_ENDPOINT, withBackendSession } from './lib/apiClient';
 
   let name = '';
   let lastGreeting: GreetingRecord | null = null;
@@ -11,9 +11,7 @@
   let initializing = true;
   let errorMessage: string | null = null;
 
-  const apiEndpoint = import.meta.env.PUBLIC_API_BASE
-    ? `${import.meta.env.PUBLIC_API_BASE.replace(/\/+$/, '')}/api`
-    : '/api';
+  const apiEndpoint = API_ENDPOINT;
 
   function formatError(value: unknown): string {
     if (value instanceof Error && value.message) {
