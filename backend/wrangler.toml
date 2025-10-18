@@ -1,0 +1,6 @@
+name = "svack-backend"
+main = "src/worker.ts"
+compatibility_date = "2025-03-21"
+
+[dev]
+port = 8787
